@@ -39,5 +39,5 @@ jobs:
       
       - name: deploy
         run: |
-          echo "Deploying staging ${github.ref_name}"
-          echo "Deploying staging ${github.sha}"
+          echo "Deploying staging ${{ github.ref_name }}"
+          echo "Deploying staging ${{ github.sha }}"
