@@ -26,14 +26,19 @@ jobs:
             exit 1
           fi
 
-      - name: Verify Latest Tag
+      - name: Verify Tag is Closest to HEAD of Main
         run: |
           TAG_NAME=${{ github.ref_name }}
-          LATEST_TAG=$(git tag --sort=-v:refname | head -n 1)
-          if [ "$TAG_NAME" = "$LATEST_TAG" ]; then
-            echo "tag_is_latest=true" >> $GITHUB_ENV
+          TAG_COMMIT_SHA=$(git rev-list -n 1 $TAG_NAME)
+          LATEST_COMMIT_SHA=$(git rev-parse origin/main)
+
+          # Find the most recent tag in the history of the main branch
+          CLOSEST_TAG=$(git describe --tags --abbrev=0 $LATEST_COMMIT_SHA)
+
+          if [ "$CLOSEST_TAG" = "$TAG_NAME" ]; then
+            echo "tag_is_closest_to_main=true" >> $GITHUB_ENV
           else
-            echo "Tag is not the latest. Exiting."
+            echo "Tag is not the closest to the HEAD of main. Exiting."
             exit 1
           fi
       
