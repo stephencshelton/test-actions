@@ -36,7 +36,7 @@ jobs:
           CLOSEST_TAG=$(git describe --tags --abbrev=0 $LATEST_COMMIT_SHA)
 
           if [ "$CLOSEST_TAG" = "$TAG_NAME" ]; then
-            echo "tag_is_closest_to_main=true" >> $GITHUB_ENV
+            echo "Tag is closest to the HEAD of main"
           else
             echo "Tag is not the closest to the HEAD of main. Exiting."
             exit 1
