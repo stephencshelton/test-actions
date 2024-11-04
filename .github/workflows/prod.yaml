@@ -1,0 +1,17 @@
+name: 'Deploy Production'
+
+on:
+  workflow_run:
+    workflows: ["Deploy Staging"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        run: |
+          echo "Deploying prod ${github.ref_name}"
+          echo "Deploying prod ${github.sha}"
