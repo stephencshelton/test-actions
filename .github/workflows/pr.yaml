@@ -1,0 +1,37 @@
+name: 'Pull Request Workflow'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-application.yaml
+    with:
+      ENVIRONMENT: paddl-${{ github.event.number }}
+      REPOSITORY: git@github.com:${{ github.repository }}.git
+      BRANCH: ${{ github.event.pull_request.head.ref }}
+      ENVIRONMENT_NAMESPACE: review-apps
+      HELM_VALUES: |
+        image:
+          repository: ${{ vars.NONPROD_REGISTRY_URL }}/dev/stella-river/paddl-app
+          tag: ${{ github.sha }}
+          pullPolicy: IfNotPresent
+        config:
+          COGNITO_USER_POOL: us-east-1_FjhzV8Ftg
+          COGNITO_CLIENT_ID: 3ketvghk6ob6ohk9p7rn0nlnfl
+          DEBUG: true
+        ingress:
+          enabled: true
+          className: nginx
+          hosts:
+            - host: paddl-${{ github.event.number }}.dev.stella-river.com
+              paths:
+                - path: /
+                  pathType: ImplementationSpecific
+          tls:
+            - secretName: wildcard-dev-stella-river-com-tls
+              hosts:
+                - paddl-${{ github.event.number }}.dev.stella-river.com
