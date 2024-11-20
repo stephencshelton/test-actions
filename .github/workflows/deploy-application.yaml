@@ -1,0 +1,83 @@
+name: Deploy Environment
+
+on:
+  workflow_call:
+    inputs:
+      MANIFEST_FILE:
+        required: false
+        type: string
+        description: Path to the Kubernetes manifest file
+        default: 'shared-github-actions/.github/templates/application.yaml'
+      ENVIRONMENT:
+        required: true
+        type: string
+        description: Environment to deploy
+      CLUSTER:
+        required: false
+        type: string
+        description: EKS cluster name
+        default: 'dev'
+      NAMESPACE:
+        required: false
+        type: string
+        description: Kubernetes namespace
+        default: 'argocd'
+      ENVIRONMENT_NAMESPACE:
+        required: false
+        type: string
+        description: Kubernetes namespace for the environment
+        default: 'review-apps'
+      BRANCH:
+        required: false
+        type: string
+        description: Git branch to deploy
+      HELM_VALUES:
+        required: false
+        type: string
+        description: Multi-line string of Helm values
+      DOMAIN_NAME:
+        required: false
+        type: string
+        description: Domain name
+        default: 'stella-river.com'
+      REPOSITORY:
+        required: true
+        type: string
+        description: Repository that is being deployed
+      REGION:
+        required: false
+        type: string
+        description: AWS region
+        default: 'us-east-1'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Indent HELM_VALUES
+        id: indent_helm
+        run: |
+          echo "Indenting HELM_VALUES..."
+          INDENTED_HELM_VALUES=$(echo "${HELM_VALUES}" | sed 's/^/        /') # 8 spaces
+          echo "INDENTED_HELM_VALUES<<EOF" >> $GITHUB_ENV
+          echo "${INDENTED_HELM_VALUES}" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        env:
+          HELM_VALUES: ${{ inputs.HELM_VALUES }}
+
+      - name: Setup ArgoCD Application manifest
+        run: |
+          envsubst < ${{ inputs.MANIFEST_FILE }} > shared-github-actions/.github/templates/application_substituted.yaml
+        env:
+          ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+          DOMAIN_NAME: ${{ inputs.DOMAIN_NAME }}
+          BRANCH: ${{ inputs.BRANCH }}
+          HELM_VALUES: ${{ env.INDENTED_HELM_VALUES }}
+          ENVIRONMENT_NAMESPACE: ${{ inputs.ENVIRONMENT_NAMESPACE }}
+          REPOSITORY: ${{ inputs.REPOSITORY }}
+
+      - name: Validate Substituted Manifest
+        run: |
+          cat shared-github-actions/.github/templates/application_substituted.yaml
