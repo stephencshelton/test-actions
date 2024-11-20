@@ -7,7 +7,7 @@ on:
         required: false
         type: string
         description: Path to the Kubernetes manifest file
-        default: 'shared-github-actions/.github/templates/application.yaml'
+        default: '.github/templates/application.yaml'
       ENVIRONMENT:
         required: true
         type: string
