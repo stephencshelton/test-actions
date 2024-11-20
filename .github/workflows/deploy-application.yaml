@@ -69,7 +69,7 @@ jobs:
 
       - name: Setup ArgoCD Application manifest
         run: |
-          envsubst < ${{ inputs.MANIFEST_FILE }} > shared-github-actions/.github/templates/application_substituted.yaml
+          envsubst < ${{ inputs.MANIFEST_FILE }} > .github/templates/application_substituted.yaml
         env:
           ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
           DOMAIN_NAME: ${{ inputs.DOMAIN_NAME }}
@@ -80,4 +80,4 @@ jobs:
 
       - name: Validate Substituted Manifest
         run: |
-          cat shared-github-actions/.github/templates/application_substituted.yaml
+          cat .github/templates/application_substituted.yaml
