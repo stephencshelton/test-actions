@@ -13,5 +13,5 @@ jobs:
       - name: deploy
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         run: |
-          echo "Deploying prod ${{ github.event.workflow_run.outputs.tag_name }}"
+          echo "Deploying prod ${{ github.event.workflow_run.check-tag.outputs.tag_name }}"
           echo "Deploying prod ${{ github.sha }}"
